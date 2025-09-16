@@ -2,66 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>SA-MP Player List</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background: #000;
-      color: #0f0;
-    }
-    .card {
-      background: #111;
-      padding: 30px 40px;
-      border-radius: 15px;
-      box-shadow: 0 0 15px rgba(0,255,0,0.3);
-      text-align: center;
-      max-width: 600px;
-      width: 100%;
-    }
-    h2 {
-      margin: 0;
-      font-size: 1.5em;
-    }
-    ul {
-      text-align: left;
-      margin-top: 20px;
-      padding-left: 20px;
-    }
-    li {
-      margin: 5px 0;
-      font-size: 1.1em;
-    }
-    .error {
-      color: #ff4444;
-    }
-  </style>
+  <title>SA-MP Players</title>
 </head>
 <body>
-  <div class="card">
-    <h2>Server Players</h2>
-    <div id="players">Loading...</div>
-  </div>
+  <h2>Players Online</h2>
+  <div id="players">Loading...</div>
 
   <script>
-    const API_URL = "/api/get-players";
-
     async function loadPlayers() {
       try {
-        const res = await fetch(API_URL);
+        const res = await fetch("https://api.gamemonitoring.net/servers/9337618/players?limit=100");
         const data = await res.json();
 
-        // Determine array of players based on API structure
         let players = [];
         if (Array.isArray(data)) {
           players = data;
-        } else if (data && Array.isArray(data.players)) {
+        } else if (data.players) {
           players = data.players;
+        } else if (data.data && data.data.players) {
+          players = data.data.players;
         }
 
         if (players.length === 0) {
@@ -69,24 +28,18 @@
           return;
         }
 
-        const list = players
-          .map(p => {
-            const name = p.name || "Unknown";
-            const score = p.score !== undefined ? p.score : "N/A";
-            const ping = p.ping !== undefined ? p.ping : "N/A";
-            return `<li>${name} (Score: ${score}, Ping: ${ping})</li>`;
-          })
-          .join("");
+        const list = players.map(p =>
+          `<li>${p.name} (Score: ${p.score ?? "N/A"}, Ping: ${p.ping ?? "N/A"})</li>`
+        ).join("");
         document.getElementById("players").innerHTML = `<ul>${list}</ul>`;
       } catch (err) {
-        document.getElementById("players").textContent = "Error loading players";
-        document.getElementById("players").className = "error";
+        document.getElementById("players").textContent = "Error loading players (CORS blocked?)";
         console.error(err);
       }
     }
 
     loadPlayers();
-    setInterval(loadPlayers, 15000); // refresh every 15s
+    setInterval(loadPlayers, 15000);
   </script>
 </body>
 </html>
