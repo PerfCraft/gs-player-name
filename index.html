@@ -3,9 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <title>SA-MP Players</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      color: #333;
+      text-align: center;
+      padding: 20px;
+    }
+    h2 {
+      margin-bottom: 10px;
+    }
+    #count {
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+    table {
+      margin: 0 auto;
+      border-collapse: collapse;
+      width: 60%;
+      background: #fff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+    }
+    th {
+      background: #333;
+      color: #fff;
+    }
+    tr:nth-child(even) {
+      background: #f2f2f2;
+    }
+  </style>
 </head>
 <body>
-  <h2>Players Online</h2>
+  <h2>SA-MP Players</h2>
+  <div id="count">Loading...</div>
   <div id="players">Loading...</div>
 
   <script>
@@ -14,21 +49,30 @@
         const res = await fetch("https://api.gamemonitoring.net/servers/9337618/players?limit=100");
         const data = await res.json();
 
-        // The real path is response.items
         const players = data.response?.items || [];
+        const countDiv = document.getElementById("count");
+        const playersDiv = document.getElementById("players");
 
         if (players.length === 0) {
-          document.getElementById("players").textContent = "No players online";
+          countDiv.textContent = "No players online";
+          playersDiv.innerHTML = "";
           return;
         }
 
-        const list = players.map(p =>
-          `<li>${p.name || "Unknown"}</li>`
+        countDiv.textContent = `Players Online: ${players.length}/250`;
+
+        const rows = players.map(p =>
+          `<tr><td>${p.name || "Unknown"}</td></tr>`
         ).join("");
 
-        document.getElementById("players").innerHTML = `<ul>${list}</ul>`;
+        playersDiv.innerHTML = `
+          <table>
+            <tr><th>Name</th></tr>
+            ${rows}
+          </table>
+        `;
       } catch (err) {
-        document.getElementById("players").textContent = "Error loading players";
+        document.getElementById("count").textContent = "Error loading players";
         console.error(err);
       }
     }
