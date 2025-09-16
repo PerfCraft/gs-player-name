@@ -21,13 +21,14 @@
     table {
       margin: 0 auto;
       border-collapse: collapse;
-      width: 60%;
+      width: 70%;
       background: #fff;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     th, td {
       border: 1px solid #ddd;
       padding: 10px;
+      text-align: left;
     }
     th {
       background: #333;
@@ -35,6 +36,12 @@
     }
     tr:nth-child(even) {
       background: #f2f2f2;
+    }
+    img.avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
     }
   </style>
 </head>
@@ -61,13 +68,19 @@
 
         countDiv.textContent = `Players Online: ${players.length}/250`;
 
+        // Default avatar image
+        const avatarUrl = "image.png"; // put this file in the same folder as index.html
+
         const rows = players.map(p =>
-          `<tr><td>${p.name || "Unknown"}</td></tr>`
+          `<tr>
+             <td><img class="avatar" src="${avatarUrl}" alt="avatar"></td>
+             <td>${p.name || "Unknown"}</td>
+           </tr>`
         ).join("");
 
         playersDiv.innerHTML = `
           <table>
-            <tr><th>Name</th></tr>
+            <tr><th>Avatar</th><th>Name</th></tr>
             ${rows}
           </table>
         `;
