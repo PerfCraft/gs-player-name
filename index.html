@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SA-MP Player Count</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #111;
+      color: #0f0;
+    }
+    .card {
+      background: #222;
+      padding: 20px 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,255,0,0.3);
+      text-align: center;
+    }
+    .count {
+      font-size: 2em;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Server Player Count</h2>
+    <div class="count" id="count">Loading...</div>
+  </div>
+
+  <script>
+    async function loadPlayerCount() {
+      try {
+        const res = await fetch('https://api.gamemonitoring.net/servers/9337618');
+        const data = await res.json();
+        const { online, max } = data.players;
+        document.getElementById('count').textContent = `${online} / ${max}`;
+      } catch (err) {
+        document.getElementById('count').textContent = 'Error loading count';
+        console.error(err);
+      }
+    }
+
+    loadPlayerCount();
+    setInterval(loadPlayerCount, 15000); // refresh every 15s
+  </script>
+</body>
+</html>
