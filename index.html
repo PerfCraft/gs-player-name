@@ -14,14 +14,8 @@
         const res = await fetch("https://api.gamemonitoring.net/servers/9337618/players?limit=100");
         const data = await res.json();
 
-        let players = [];
-        if (Array.isArray(data)) {
-          players = data;
-        } else if (data.players) {
-          players = data.players;
-        } else if (data.data && data.data.players) {
-          players = data.data.players;
-        }
+        // The real path is response.items
+        const players = data.response?.items || [];
 
         if (players.length === 0) {
           document.getElementById("players").textContent = "No players online";
@@ -29,11 +23,12 @@
         }
 
         const list = players.map(p =>
-          `<li>${p.name} (Score: ${p.score ?? "N/A"}, Ping: ${p.ping ?? "N/A"})</li>`
+          `<li>${p.name || "Unknown"}</li>`
         ).join("");
+
         document.getElementById("players").innerHTML = `<ul>${list}</ul>`;
       } catch (err) {
-        document.getElementById("players").textContent = "Error loading players (CORS blocked?)";
+        document.getElementById("players").textContent = "Error loading players";
         console.error(err);
       }
     }
