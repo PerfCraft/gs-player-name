@@ -1,5 +1,4 @@
 // Netlify Function: get-players
-import fetch from "node-fetch";
 
 export async function handler(event, context) {
   try {
@@ -12,7 +11,7 @@ export async function handler(event, context) {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*"
       },
-      body: JSON.stringify(data), // return full player list
+      body: JSON.stringify(data),
     };
   } catch (err) {
     return {
