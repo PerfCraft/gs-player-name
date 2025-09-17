@@ -1,200 +1,215 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8" />
   <title>GreenStone Players</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
+    /* Lightweight, potato-friendly layout: no shadows, no blur, solid boxes */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html,body { height: 100%; }
+    body{
       font-family: 'Poppins', sans-serif;
       background: #000;
       color: #fff;
-      text-align: center;
-      padding: 20px;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      padding:20px;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
 
-      /* Disable text selection */
+      /* disable text selection globally (still reversible by devs in debug mode) */
       user-select: none;
       -webkit-user-select: none;
-      -ms-user-select: none;
       -moz-user-select: none;
+      -ms-user-select: none;
     }
 
-    h2 {
-      font-size: 2rem;
-      font-weight: 600;
-      margin-bottom: 15px;
-    }
-
+    h1{ font-size:1.6rem; margin-bottom:12px; font-weight:600; text-align:center; }
     #count {
-      margin-bottom: 15px;
-      font-weight: 500;
-      font-size: 1.1rem;
-      background: #111;
-      padding: 8px 16px;
-      border-radius: 10px;
-      display: inline-block;
-      position: sticky;
-      top: 0;
-      z-index: 5;
+      background:#111;
+      padding:8px 14px;
+      border-radius:8px;
+      margin-bottom:12px;
+      font-weight:500;
+      position:sticky;
+      top:0;
+      z-index:10;
     }
 
-    /* Grid */
+    /* grid of player boxes */
     #players {
-      display: grid;
+      width:100%;
+      max-width:1200px;
+      display:grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      width: 100%;
-      max-width: 1200px;
-      max-height: 70vh;
-      overflow-y: auto;
-      padding-right: 5px;
+      gap:10px;
+      max-height:70vh;
+      overflow-y:auto;
+      padding-right:6px;
     }
+    @media (max-width:1024px){ #players { grid-template-columns:repeat(3,1fr); } }
+    @media (max-width:768px){ #players { grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:480px){ #players { grid-template-columns:1fr; } }
 
-    @media (max-width: 1024px) {
-      #players { grid-template-columns: repeat(3, 1fr); }
-    }
-    @media (max-width: 768px) {
-      #players { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 480px) {
-      #players { grid-template-columns: 1fr; }
-    }
+    /* simple visible scrollbar */
+    #players::-webkit-scrollbar { width:8px; }
+    #players::-webkit-scrollbar-track { background:#111; }
+    #players::-webkit-scrollbar-thumb { background:#555; border-radius:8px; }
+    #players::-webkit-scrollbar-thumb:hover { background:#777; }
 
-    /* Scrollbar */
-    #players::-webkit-scrollbar {
-      width: 8px;
+    /* player boxes - solid, no blur / no shadow */
+    .player-card{
+      background:#111;
+      border-radius:8px;
+      padding:10px;
+      text-align:center;
+      min-height:72px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
     }
-    #players::-webkit-scrollbar-track {
-      background: #111;
-    }
-    #players::-webkit-scrollbar-thumb {
-      background: #555;
-      border-radius: 8px;
-    }
-    #players::-webkit-scrollbar-thumb:hover {
-      background: #777;
-    }
+    .player-card img{ width:48px; height:48px; border-radius:50%; object-fit:cover; margin-bottom:6px; }
+    .player-name{ font-size:0.92rem; font-weight:500; word-break:break-word; text-align:center; }
 
-    /* Player cards */
-    .player-card {
-      background: #111;
-      border-radius: 8px;
-      padding: 12px;
-      text-align: center;
-    }
+    /* overlay used only when protections are active */
+    #__gs_blocker { position:fixed; inset:0; z-index:9999; background:transparent; pointer-events:none; }
 
-    .player-card img {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-bottom: 6px;
-    }
-
-    .player-name {
-      font-size: 0.9rem;
-      font-weight: 500;
-      word-break: break-word;
-    }
-
-    /* Overlay (blocks selection/screenshot copying) */
-    #blocker {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 9999;
-      background: transparent;
-      pointer-events: none;
-    }
+    /* small helper for center message (when anti-debug wipes page) */
+    .gs-blocked-msg { color:#fff; text-align:center; margin-top:28vh; font-size:1.2rem; }
   </style>
 </head>
 <body>
-  <h2>GreenStone Players</h2>
+  <h1>GreenStone Players</h1>
   <div id="count">Loading...</div>
   <div id="players">Loading...</div>
-  <div id="blocker"></div>
+  <!-- overlay element appended here if protections active -->
+  <div id="__gs_blocker" aria-hidden="true"></div>
 
   <script>
+    /**
+     * Debug bypass:
+     * - Open with ?debug=true to disable protections for your browser session.
+     * - Example: https://yoursite.com/index.html?debug=true
+     *
+     * IMPORTANT: This bypass is URL-based. If you want a more private bypass
+     * (e.g. IP whitelist or secret token), implement server-side checks.
+     */
+
+    const params = new URLSearchParams(window.location.search);
+    const isDebug = params.get('debug') === 'true';
+
+    /* ---------- Data loading (kept minimal & lightweight) ---------- */
     async function loadPlayers() {
       try {
         const res = await fetch("https://api.gamemonitoring.net/servers/9337618/players?limit=100");
-        const data = await res.json();
+        const json = await res.json();
+        const players = json?.response?.items || [];
+        const countEl = document.getElementById('count');
+        const playersEl = document.getElementById('players');
 
-        const players = data.response?.items || [];
-        const countDiv = document.getElementById("count");
-        const playersDiv = document.getElementById("players");
-
-        if (players.length === 0) {
-          countDiv.textContent = "No players online";
-          playersDiv.innerHTML = "";
+        if (!players.length) {
+          countEl.textContent = 'No players online';
+          playersEl.innerHTML = '';
           return;
         }
 
-        countDiv.textContent = `Players Online: ${players.length}/250`;
+        countEl.textContent = `Players Online: ${players.length}/250`;
 
-        const avatarUrl = "image.png";
-
-        const cards = players.map(p =>
-          `<div class="player-card">
-             <img src="${avatarUrl}" alt="avatar" loading="lazy">
-             <div class="player-name">${p.name || "Unknown"}</div>
-           </div>`
-        ).join("");
-
-        playersDiv.innerHTML = cards;
-      } catch (err) {
-        // console hidden
+        const avatar = 'image.png'; // small local placeholder recommended
+        // build minimal markup (avoid heavy DOM ops per item)
+        let html = '';
+        for (let i = 0; i < players.length; i++) {
+          const p = players[i];
+          const safeName = String(p?.name || 'Unknown')
+            .replace(/</g,'&lt;').replace(/>/g,'&gt;');
+          html += '<div class="player-card">'
+               +   `<img src="${avatar}" alt="avatar" loading="lazy">`
+               +   `<div class="player-name">${safeName}</div>`
+               + '</div>';
+        }
+        playersEl.innerHTML = html;
+      } catch (e) {
+        // intentionally silent for users (debug mode will show console)
+        if (isDebug) console.error('loadPlayers error', e);
       }
     }
 
     loadPlayers();
+    // refresh less often on potato machines, 15s is fine
     setInterval(loadPlayers, 15000);
 
-    // 🔒 Security Layer
+    /* ---------- Protections: only active when NOT in debug mode ---------- */
+    if (!isDebug) {
+      // disable console output for normal users
+      console.log = console.info = console.warn = console.error = function(){};
 
-    // Block devtools shortcuts
-    document.addEventListener("keydown", function (e) {
-      if (
-        e.key === "F12" ||
-        (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) ||
-        (e.ctrlKey && e.key.toLowerCase() === "u") ||
-        (e.key === "PrintScreen")
-      ) {
-        e.preventDefault();
-        alert("Access Denied.");
-        return false;
+      // block right-click
+      document.addEventListener('contextmenu', function (ev) {
+        ev.preventDefault();
+        // silent (no alert) to avoid annoying popups for users
+      }, { passive: false });
+
+      // block common devtools shortcuts & PrintScreen
+      document.addEventListener('keydown', function (ev) {
+        const k = ev.key ? ev.key.toLowerCase() : '';
+        if (
+          ev.key === 'F12' ||
+          (ev.ctrlKey && ev.shiftKey && (k === 'i' || k === 'j' || k === 'c')) ||
+          (ev.ctrlKey && k === 'u') ||
+          (k === 'printscreen' || k === 'printscr' || k === 'prtsc')
+        ) {
+          ev.preventDefault();
+        }
+      }, { passive: false });
+
+      // anti-debugging detection: uses a short timing + debugger() check
+      // if devtools cause a slowdown, wipe the page to protect contents
+      const antiDebugInterval = setInterval(function () {
+        const t0 = performance.now();
+        // eslint-disable-next-line no-debugger
+        debugger;
+        const t1 = performance.now();
+        if (t1 - t0 > 120) { // threshold; if debugger paused or panel open, this will be larger
+          try {
+            // remove content and show blocked message
+            document.documentElement.innerHTML = '';
+            const msg = document.createElement('div');
+            msg.className = 'gs-blocked-msg';
+            msg.innerText = 'DevTools Detected. Access Blocked.';
+            document.documentElement.appendChild(msg);
+          } catch (ignored) {}
+          clearInterval(antiDebugInterval);
+        }
+      }, 2000);
+
+      // overlay that makes selection/copy/screenshot slightly harder (pointer-events:none so page still usable)
+      const overlay = document.getElementById('__gs_blocker');
+      if (overlay) {
+        // give it some tiny visual watermark (optional) - but keep transparent to avoid perf cost
+        overlay.style.pointerEvents = 'none';
       }
-    });
+    } else {
+      // Debug mode: helpful console message and allow selection/devtools
+      console.log('GreenStone DEBUG MODE: protections are OFF for this session.');
+      // enable selection while in debug mode so devs can copy/paste for testing
+      document.body.style.userSelect = 'text';
+      document.body.style.webkitUserSelect = 'text';
+      document.body.style.msUserSelect = 'text';
+      // remove overlay in case it exists
+      const ob = document.getElementById('__gs_blocker');
+      if (ob) ob.parentNode.removeChild(ob);
+    }
 
-    // Block right click
-    document.addEventListener("contextmenu", function (e) {
-      e.preventDefault();
-      alert("Right click is disabled.");
-    });
-
-    // Disable console completely
-    console.log = console.warn = console.error = function() {};
-
-    // Anti-debugging detection
-    setInterval(function () {
-      const start = performance.now();
-      debugger;
-      if (performance.now() - start > 100) {
-        document.body.innerHTML = "<h1 style='color:red;text-align:center;margin-top:30vh'>DevTools Detected. Access Blocked.</h1>";
-      }
-    }, 2000);
+    /* ---------- Small note to developer (not shown to users) ----------
+       - To debug locally without query string: open devtools, then
+         paste the following into the Console to temporarily disable protections:
+           window.location.search = '?debug=true'; location.reload();
+       - For a safer production bypass, implement a server-side check (IP or auth).
+    -------------------------------------------------------------------*/
   </script>
 </body>
 </html>
