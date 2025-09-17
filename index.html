@@ -5,7 +5,6 @@
   <title>SA-MP Players</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    /* Reset */
     * {
       margin: 0;
       padding: 0;
@@ -28,7 +27,6 @@
       font-size: 2.5rem;
       font-weight: 600;
       margin-bottom: 15px;
-      letter-spacing: 1px;
     }
 
     #count {
@@ -43,46 +41,43 @@
       display: inline-block;
     }
 
-    table {
-      width: 80%;
-      border-collapse: collapse;
+    /* Grid layout for players */
+    #players {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 20px;
+      width: 90%;
+      max-width: 1200px;
+    }
+
+    .player-card {
       background: rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(12px);
       border-radius: 16px;
-      overflow: hidden;
+      padding: 20px;
+      text-align: center;
       box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+      transition: transform 0.2s ease, background 0.3s ease;
     }
 
-    th, td {
-      padding: 15px 20px;
-      text-align: left;
-      font-size: 1rem;
+    .player-card:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.25);
     }
 
-    th {
-      background: rgba(0, 0, 0, 0.4);
-      color: #fff;
-      font-weight: 600;
-    }
-
-    tr {
-      transition: background 0.3s ease;
-    }
-
-    tr:nth-child(even) {
-      background: rgba(255, 255, 255, 0.05);
-    }
-
-    tr:hover {
-      background: rgba(255, 255, 255, 0.15);
-    }
-
-    img.avatar {
-      width: 45px;
-      height: 45px;
+    .player-card img {
+      width: 60px;
+      height: 60px;
       border-radius: 50%;
       object-fit: cover;
       border: 2px solid rgba(255, 255, 255, 0.5);
+      margin-bottom: 10px;
+    }
+
+    .player-name {
+      font-size: 1rem;
+      font-weight: 500;
+      word-break: break-word;
     }
   </style>
 </head>
@@ -110,21 +105,16 @@
         countDiv.textContent = `Players Online: ${players.length}/250`;
 
         // Default avatar image
-        const avatarUrl = "image.png"; // put this file in the same folder as index.html
+        const avatarUrl = "image.png";
 
-        const rows = players.map(p =>
-          `<tr>
-             <td><img class="avatar" src="${avatarUrl}" alt="avatar"></td>
-             <td>${p.name || "Unknown"}</td>
-           </tr>`
+        const cards = players.map(p =>
+          `<div class="player-card">
+             <img src="${avatarUrl}" alt="avatar">
+             <div class="player-name">${p.name || "Unknown"}</div>
+           </div>`
         ).join("");
 
-        playersDiv.innerHTML = `
-          <table>
-            <tr><th>Avatar</th><th>Name</th></tr>
-            ${rows}
-          </table>
-        `;
+        playersDiv.innerHTML = cards;
       } catch (err) {
         document.getElementById("count").textContent = "Error loading players";
         console.error(err);
