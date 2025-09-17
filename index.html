@@ -13,7 +13,7 @@
 
     body {
       font-family: 'Poppins', sans-serif;
-      background: #000; /* flat black */
+      background: #000;
       color: #fff;
       text-align: center;
       padding: 20px;
@@ -21,6 +21,12 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+
+      /* Disable text selection */
+      user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      -moz-user-select: none;
     }
 
     h2 {
@@ -33,10 +39,9 @@
       margin-bottom: 15px;
       font-weight: 500;
       font-size: 1.1rem;
-      background: rgba(0, 0, 0, 0.85);
+      background: #111;
       padding: 8px 16px;
       border-radius: 10px;
-      backdrop-filter: blur(2px);
       display: inline-block;
       position: sticky;
       top: 0;
@@ -65,7 +70,7 @@
       #players { grid-template-columns: 1fr; }
     }
 
-    /* Simple visible scrollbar */
+    /* Scrollbar */
     #players::-webkit-scrollbar {
       width: 8px;
     }
@@ -80,11 +85,10 @@
       background: #777;
     }
 
-    /* Cards */
+    /* Player cards */
     .player-card {
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(2px);
-      border-radius: 10px;
+      background: #111;
+      border-radius: 8px;
       padding: 12px;
       text-align: center;
     }
@@ -102,12 +106,25 @@
       font-weight: 500;
       word-break: break-word;
     }
+
+    /* Overlay (blocks selection/screenshot copying) */
+    #blocker {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 9999;
+      background: transparent;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
   <h2>GreenStone Players</h2>
   <div id="count">Loading...</div>
   <div id="players">Loading...</div>
+  <div id="blocker"></div>
 
   <script>
     async function loadPlayers() {
@@ -138,30 +155,46 @@
 
         playersDiv.innerHTML = cards;
       } catch (err) {
-        // hide console errors
+        // console hidden
       }
     }
 
     loadPlayers();
     setInterval(loadPlayers, 15000);
 
-    // Block devtools & right click
+    // 🔒 Security Layer
+
+    // Block devtools shortcuts
     document.addEventListener("keydown", function (e) {
-      if (e.key === "F12" || 
-          (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) || 
-          (e.ctrlKey && e.key === "U")) {
+      if (
+        e.key === "F12" ||
+        (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) ||
+        (e.ctrlKey && e.key.toLowerCase() === "u") ||
+        (e.key === "PrintScreen")
+      ) {
         e.preventDefault();
-        alert("Developer tools are disabled on this page.");
+        alert("Access Denied.");
+        return false;
       }
     });
 
+    // Block right click
     document.addEventListener("contextmenu", function (e) {
       e.preventDefault();
       alert("Right click is disabled.");
     });
 
-    // Disable console output
+    // Disable console completely
     console.log = console.warn = console.error = function() {};
+
+    // Anti-debugging detection
+    setInterval(function () {
+      const start = performance.now();
+      debugger;
+      if (performance.now() - start > 100) {
+        document.body.innerHTML = "<h1 style='color:red;text-align:center;margin-top:30vh'>DevTools Detected. Access Blocked.</h1>";
+      }
+    }, 2000);
   </script>
 </body>
 </html>
