@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>SA-MP Players</title>
+  <title>GreenStone Players</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
     * {
@@ -13,7 +13,7 @@
 
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #1f1c2c, #928dab);
+      background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
       color: #fff;
       text-align: center;
       padding: 40px;
@@ -33,50 +33,77 @@
       margin-bottom: 20px;
       font-weight: 500;
       font-size: 1.2rem;
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(0, 0, 0, 0.6);
       padding: 10px 20px;
       border-radius: 12px;
-      backdrop-filter: blur(6px);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      backdrop-filter: blur(2px);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.5);
       display: inline-block;
+      position: sticky;
+      top: 0;
+      z-index: 5;
     }
 
-    /* Scrollable grid */
+    /* Grid for players */
     #players {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      grid-template-columns: repeat(4, 1fr);
       gap: 15px;
-      width: 90%;
+      width: 100%;
       max-width: 1200px;
-      max-height: 70vh; /* limit height */
+      max-height: 70vh;
       overflow-y: auto;
-      padding-right: 10px; /* space for hidden scrollbar */
+      padding-right: 5px;
     }
 
-    /* Hide scrollbar but keep scroll functionality */
+    @media (max-width: 1024px) {
+      #players {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    @media (max-width: 768px) {
+      #players {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 480px) {
+      #players {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Custom scrollbar */
     #players::-webkit-scrollbar {
-      width: 0;
-      height: 0;
+      width: 8px;
     }
-    #players {
-      -ms-overflow-style: none;  /* IE/Edge */
-      scrollbar-width: none;     /* Firefox */
+    #players::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+    }
+    #players::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 10px;
+      transition: background 0.3s ease;
+    }
+    #players::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.6);
     }
 
+    /* Player card */
     .player-card {
-      background: rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(6px);
-      border-radius: 14px;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(2px);
+      border-radius: 12px;
       padding: 15px;
       text-align: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      box-shadow: 0 1px 6px rgba(0,0,0,0.6);
       transition: transform 0.2s ease, background 0.3s ease;
-      will-change: transform; /* GPU boost */
+      will-change: transform;
     }
 
     .player-card:hover {
       transform: translateY(-3px);
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(0, 0, 0, 0.85);
     }
 
     .player-card img {
@@ -84,7 +111,7 @@
       height: 55px;
       border-radius: 50%;
       object-fit: cover;
-      border: 2px solid rgba(255, 255, 255, 0.4);
+      border: 2px solid rgba(255, 255, 255, 0.3);
       margin-bottom: 8px;
     }
 
@@ -96,7 +123,7 @@
   </style>
 </head>
 <body>
-  <h2>SA-MP Players</h2>
+  <h2>GreenStone Players</h2>
   <div id="count">Loading...</div>
   <div id="players">Loading...</div>
 
@@ -122,7 +149,7 @@
 
         const cards = players.map(p =>
           `<div class="player-card">
-             <img src="${avatarUrl}" alt="avatar">
+             <img src="${avatarUrl}" alt="avatar" loading="lazy">
              <div class="player-name">${p.name || "Unknown"}</div>
            </div>`
         ).join("");
@@ -136,6 +163,21 @@
 
     loadPlayers();
     setInterval(loadPlayers, 15000);
+
+    // Block F12, right-click, and devtools shortcuts
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "F12" || 
+          (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) || 
+          (e.ctrlKey && e.key === "U")) {
+        e.preventDefault();
+        alert("Developer tools are disabled on this page.");
+      }
+    });
+
+    document.addEventListener("contextmenu", function (e) {
+      e.preventDefault();
+      alert("Right click is disabled.");
+    });
   </script>
 </body>
 </html>
