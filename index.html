@@ -13,10 +13,10 @@
 
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+      background: #000; /* flat black */
       color: #fff;
       text-align: center;
-      padding: 40px;
+      padding: 20px;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -24,31 +24,30 @@
     }
 
     h2 {
-      font-size: 2.5rem;
+      font-size: 2rem;
       font-weight: 600;
       margin-bottom: 15px;
     }
 
     #count {
-      margin-bottom: 20px;
+      margin-bottom: 15px;
       font-weight: 500;
-      font-size: 1.2rem;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 10px 20px;
-      border-radius: 12px;
+      font-size: 1.1rem;
+      background: rgba(0, 0, 0, 0.85);
+      padding: 8px 16px;
+      border-radius: 10px;
       backdrop-filter: blur(2px);
-      box-shadow: 0 1px 4px rgba(0,0,0,0.5);
       display: inline-block;
       position: sticky;
       top: 0;
       z-index: 5;
     }
 
-    /* Grid for players */
+    /* Grid */
     #players {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 15px;
+      gap: 10px;
       width: 100%;
       max-width: 1200px;
       max-height: 70vh;
@@ -57,66 +56,49 @@
     }
 
     @media (max-width: 1024px) {
-      #players {
-        grid-template-columns: repeat(3, 1fr);
-      }
+      #players { grid-template-columns: repeat(3, 1fr); }
     }
     @media (max-width: 768px) {
-      #players {
-        grid-template-columns: repeat(2, 1fr);
-      }
+      #players { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 480px) {
-      #players {
-        grid-template-columns: 1fr;
-      }
+      #players { grid-template-columns: 1fr; }
     }
 
-    /* Custom scrollbar */
+    /* Simple visible scrollbar */
     #players::-webkit-scrollbar {
       width: 8px;
     }
     #players::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.3);
-      border-radius: 10px;
+      background: #111;
     }
     #players::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.4);
-      border-radius: 10px;
-      transition: background 0.3s ease;
+      background: #555;
+      border-radius: 8px;
     }
     #players::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 255, 255, 0.6);
+      background: #777;
     }
 
-    /* Player card */
+    /* Cards */
     .player-card {
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(2px);
-      border-radius: 12px;
-      padding: 15px;
-      text-align: center;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.6);
-      transition: transform 0.2s ease, background 0.3s ease;
-      will-change: transform;
-    }
-
-    .player-card:hover {
-      transform: translateY(-3px);
       background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(2px);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
     }
 
     .player-card img {
-      width: 55px;
-      height: 55px;
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
       object-fit: cover;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .player-name {
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 500;
       word-break: break-word;
     }
@@ -156,15 +138,14 @@
 
         playersDiv.innerHTML = cards;
       } catch (err) {
-        document.getElementById("count").textContent = "Error loading players";
-        console.error(err);
+        // hide console errors
       }
     }
 
     loadPlayers();
     setInterval(loadPlayers, 15000);
 
-    // Block F12, right-click, and devtools shortcuts
+    // Block devtools & right click
     document.addEventListener("keydown", function (e) {
       if (e.key === "F12" || 
           (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) || 
@@ -178,6 +159,9 @@
       e.preventDefault();
       alert("Right click is disabled.");
     });
+
+    // Disable console output
+    console.log = console.warn = console.error = function() {};
   </script>
 </body>
 </html>
