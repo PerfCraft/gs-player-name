@@ -30,52 +30,66 @@
     }
 
     #count {
-      margin-bottom: 30px;
+      margin-bottom: 20px;
       font-weight: 500;
       font-size: 1.2rem;
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.08);
       padding: 10px 20px;
       border-radius: 12px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      backdrop-filter: blur(6px);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
       display: inline-block;
     }
 
-    /* Grid layout for players */
+    /* Scrollable grid */
     #players {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 15px;
       width: 90%;
       max-width: 1200px;
+      max-height: 70vh; /* limit height */
+      overflow-y: auto;
+      padding-right: 10px; /* space for hidden scrollbar */
+    }
+
+    /* Hide scrollbar but keep scroll functionality */
+    #players::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+    }
+    #players {
+      -ms-overflow-style: none;  /* IE/Edge */
+      scrollbar-width: none;     /* Firefox */
     }
 
     .player-card {
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(12px);
-      border-radius: 16px;
-      padding: 20px;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(6px);
+      border-radius: 14px;
+      padding: 15px;
       text-align: center;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
       transition: transform 0.2s ease, background 0.3s ease;
+      will-change: transform; /* GPU boost */
     }
 
     .player-card:hover {
-      transform: translateY(-5px);
-      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-3px);
+      background: rgba(255, 255, 255, 0.2);
     }
 
     .player-card img {
-      width: 60px;
-      height: 60px;
+      width: 55px;
+      height: 55px;
       border-radius: 50%;
       object-fit: cover;
-      border: 2px solid rgba(255, 255, 255, 0.5);
-      margin-bottom: 10px;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      margin-bottom: 8px;
     }
 
     .player-name {
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 500;
       word-break: break-word;
     }
@@ -104,7 +118,6 @@
 
         countDiv.textContent = `Players Online: ${players.length}/250`;
 
-        // Default avatar image
         const avatarUrl = "image.png";
 
         const cards = players.map(p =>
